@@ -1,5 +1,5 @@
 ---
-title: "Activity Monitoring Report (RepData Assignment)"
+title: "Activity Monitoring Report"
 author: "Kishore Dokiburra"
 date: "April 14, 2016"
 output: 
@@ -10,21 +10,41 @@ output:
 
 
 
-## Background
-Primary goal is to analyze the data collected from a personal activity monitoring device (ex: Fitbit or Microsoft Band). Apart from analyzing the data, we are also creating report using knitr() package in R. As part of this report, we are tasked to document all the steps involved in data loading, processing and analysis for the purpose of reproducing it again.
+## Introduction
+
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the "quantified self" movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
 
 This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
 
-Data was made available in a ZIP file,named activity.zip(which contains activity.csv)
+The data for this assignment can be downloaded from the course web site:
+
+Dataset: Activity monitoring data (activity.zip)
+
+The variables included in this dataset are:
+
+steps: Number of steps taking in a 5-minute interval (missing values are coded as NA)
+date: The date on which the measurement was taken in YYYY-MM-DD format
+interval: Identifier for the 5-minute interval in which measurement was taken
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+## Assignment Goals
+
+1. Load data from activity.csv
+2. Process Data
+3. Analyze Data and create various plots
+4. Using knitr, generate .html and .md file
+5. Commit all these changes to github
+
 
 ## Environment and Tools used for this assignment
-Operating Systsem: Windows 10 Pro<br>
-RStudio<br>
-R<br>
+1. Operating Systsem: Windows 10 Pro
+2. RStudio Version 0.99.893 
+3. R version 3.2.3
 
-## Setup
-1. Launch RStudio 
-2. Make sure that Working Directory is set using setwd() or through RStudio UI. Ideally this is where your git repo is located. This will also make sure that all required files for this assignment is availale from RStudio.
+## Initial Setup
+1. Assuming that RStudio is launched, make sure that Working Directory is set using setwd() or through RStudio UI 2. Ideally this is where your git repo is located 
+3. This will also make sure that all required files can be accessed from RStudio.
+4. Output files are also created in this folder
 
 ## Variable for Data Sets (quick reference section)
 
@@ -34,7 +54,8 @@ R<br>
 4. activityData4    -- Merged Data set
 5. activityData5    -- Data set with NA replaced with median values
 
-## Loading of required Libs
+## Loading of required Libraries
+
 ```{}
   library(lattice)
   library(knitr)
@@ -42,10 +63,11 @@ R<br>
 
 ## 1. Loading and preprocessing the data
 
-1. This the Data Extract step - Declare a variable called "activityData" and load the data using read.csv()
+1. This the Data Extract step - A variable called "activityData" is declared and data is loaded in this variable using read.csv()
 
 
 ```r
+# read.csv() loads all values from .csv as strings into dataset
 activityData <-read.csv("activity.csv")
 ```
 
@@ -96,9 +118,9 @@ str(activityData)
 
 ## 2. Data Processing 
 
-This is where we will apply required transformations, data cleaning and any additional steps required to keep the data set ready for analysis. 
+This is where we will apply the required transformations, data cleaning and any additional steps required to keep the data set ready for analysis. 
 
-1. read.csv() reads the values from csv. Initially all values are loaded as strings. It is a good practice to apply relevant data types for easier processing moving forward.
+1. read.csv() reads the values from csv. Initially all values are loaded as strings. It is a good practice to apply relevant data types for easier processing moving forward. 
 
 
 ```r
