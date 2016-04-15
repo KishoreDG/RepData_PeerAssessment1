@@ -8,9 +8,7 @@ output:
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.path = 'figure/')
-```
+
 
 ## Background
 Primary goal is to analyze the data collected from a personal activity monitoring device (ex: Fitbit or Microsoft Band). Apart from analyzing the data, we are also creating report using knitr() package in R. As part of this report, we are tasked to document all the steps involved in data loading, processing and analysis for the purpose of reproducing it again.
@@ -46,22 +44,54 @@ R<br>
 
 1. This the Data Extract step - Declare a variable called "activityData" and load the data using read.csv()
 
-```{r activityData}
+
+```r
 activityData <-read.csv("activity.csv")
 ```
 
 2. Check for the summary using summary() function
-```{r activityData1, echo=TRUE}
+
+```r
 summary(activityData)
 ```
+
+```
+##      steps                date          interval     
+##  Min.   :  0.00   2012-10-01:  288   Min.   :   0.0  
+##  1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8  
+##  Median :  0.00   2012-10-03:  288   Median :1177.5  
+##  Mean   : 37.38   2012-10-04:  288   Mean   :1177.5  
+##  3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2  
+##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0  
+##  NA's   :2304     (Other)   :15840
+```
 4. Check for few records from the data set using head() function
-```{r null, echo=TRUE}
+
+```r
 head(activityData)
 ```
 
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
+```
+
 4. Check for the str
-```{r activityData2, echo=TRUE}
+
+```r
 str(activityData)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 ## 2. Data Processing 
@@ -70,7 +100,8 @@ This is where we will apply required transformations, data cleaning and any addi
 
 1. read.csv() reads the values from csv. Initially all values are loaded as strings. It is a good practice to apply relevant data types for easier processing moving forward.
 
-```{r 1, echo=TRUE}
+
+```r
 activityData$date <-as.Date(activityData$date)
 activityData$steps <-as.numeric(activityData$steps)
 activityData$interval <-as.numeric(activityData$interval)
@@ -78,7 +109,8 @@ activityData$interval <-as.numeric(activityData$interval)
 
 2. This step is to create a seperate data set by filtering out any records with missing values (for example, there are rows with NA values in "steps"" column).
 
-```{r 2, echo=TRUE}
+
+```r
 # just take all the records with values. NA values will be ignored (entire record)
 activityData2 <- activityData[complete.cases(activityData),]
 ```
@@ -92,46 +124,82 @@ activityData2 <- activityData[complete.cases(activityData),]
 
 We can find this by grouping of records by date and "sum" of the steps. Remember we are using the data set,named "activityData2". All the records with NULLS (NA) are already filtered out.
 
-```{r 3, echo=TRUE}
 
+```r
 dailySteps <- as.data.frame(tapply( activityData2$steps, 
                                     INDEX = activityData2$date, 
                                     FUN = "sum"))
 colnames(dailySteps) <-  "steps"
 
 head(dailySteps)
+```
+
+```
+##            steps
+## 2012-10-02   126
+## 2012-10-03 11352
+## 2012-10-04 12116
+## 2012-10-05 13294
+## 2012-10-06 15420
+## 2012-10-07 11015
+```
+
+```r
 tail(dailySteps)
-```  
+```
+
+```
+##            steps
+## 2012-11-24 14478
+## 2012-11-25 11834
+## 2012-11-26 11162
+## 2012-11-27 13646
+## 2012-11-28 10183
+## 2012-11-29  7047
+```
 
 2. Make a histogram of the total number of steps taken each day<br>
 
 In order to create the Histogram, we need some additional variables to hold some information for histogram
 
-```{r 4, echo=TRUE}
+
+```r
 # We are adding additional 6000 steps so that y-axis line is little longer when histogram is displayed
 # Choose the number you are comfortable with. It could be 6000 or 10000
 
 maxDailySteps <- max(dailySteps) + 6000
-
-``` 
+```
 ### Plot the Histogram- Frequency of Steps
-```{r 5, echo=TRUE}
+
+```r
   hist(dailySteps$steps, main = "Total Number of Steps Per Day", 
       xlab = "Total Number of Steps Per Day", ylab = "Frequency", 
       breaks = 10, xlim = c(0, maxDailySteps), ylim = c(0, 20), col = "green")
-```  
+```
+
+![plot of chunk 5](figure/5-1.png)
 
 3. Calculate and report the mean and median of the total number of steps taken per day
 
-```{r 6, echo=TRUE}
-  
+
+```r
   meanSteps <-  mean(dailySteps$steps)
   medianSteps <- median(dailySteps$steps)
   
   # Display Mean and Median Steps
   meanSteps
+```
+
+```
+## [1] 10766.19
+```
+
+```r
   medianSteps
-  
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -140,11 +208,13 @@ maxDailySteps <- max(dailySteps) + 6000
 Let's calculate the mean for steps by interval, using grouping.<br>
 ### we are using activityData2, in which records with NA values are already removed
 
-```{r 7, echo=TRUE}
+
+```r
 meanStepsByInterval <- as.data.frame(tapply(activityData2$steps,INDEX = activityData2$interval, FUN = "mean"))
 ```
 
-```{r 8, echo=TRUE}
+
+```r
 colnames(meanStepsByInterval) <- "mean_steps"
 meanStepsByInterval$interval <- rownames(meanStepsByInterval)
 
@@ -152,39 +222,71 @@ meanStepsByInterval$interval <- rownames(meanStepsByInterval)
 head(meanStepsByInterval)
 ```
 
+```
+##    mean_steps interval
+## 0   1.7169811        0
+## 5   0.3396226        5
+## 10  0.1320755       10
+## 15  0.1509434       15
+## 20  0.0754717       20
+## 25  2.0943396       25
+```
+
 Plotting is done using "plot" function with type set to l (line)
 
-```{r 9, echo=TRUE}
+
+```r
 plot(meanStepsByInterval$interval, meanStepsByInterval$mean_steps, type = "l", 
     xlab = "Time Interval (5-mins)", ylab = "Average number of steps", 
     main = "Average Number of Steps by Time  Interval", col="red")
 ```
 
+![plot of chunk 9](figure/9-1.png)
+
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r 10, echo=TRUE}
+
+```r
 # Let's calculate the average across all the days
 
 maxMeanStepsByInterval <- meanStepsByInterval[(meanStepsByInterval$steps == max(meanStepsByInterval$steps)), ]
+```
+
+```
+## Warning in max(meanStepsByInterval$steps): no non-missing arguments to max;
+## returning -Inf
+```
+
+```r
 maxInterval  <- maxMeanStepsByInterval[1, 2]
 maxInterval
+```
+
+```
+## [1] NA
 ```
 
 ## Imputing missing values
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r 11, echo=TRUE}
+
+```r
 # Rows with missing values (NA)
 activityData3 <- activityData[!complete.cases(activityData),] 
 rowsWithNullValues <- nrow(activityData3)
 rowsWithNullValues
 ```
 
+```
+## [1] 2304
+```
+
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 
-```{r 12, echo=TRUE}
+
+```r
 # calculate median number of steps by intervals without missing values.
 # I am using activityData2 (which has all the null records removed)
 
@@ -208,13 +310,36 @@ activityData4 <- merge(activityData,meanAndmedian, by="interval")
 
 # check for head and tail to see the data
 head(activityData4)
+```
+
+```
+##   interval steps       date median_steps mean_steps
+## 1        0    NA 2012-10-01            0   1.716981
+## 2        0     0 2012-11-23            0   1.716981
+## 3        0     0 2012-10-28            0   1.716981
+## 4        0     0 2012-11-06            0   1.716981
+## 5        0     0 2012-11-24            0   1.716981
+## 6        0     0 2012-11-15            0   1.716981
+```
+
+```r
 tail(activityData4)
+```
+
+```
+##       interval steps       date median_steps mean_steps
+## 17563     2355     0 2012-10-16            0   1.075472
+## 17564     2355     0 2012-10-07            0   1.075472
+## 17565     2355     0 2012-10-25            0   1.075472
+## 17566     2355     0 2012-11-03            0   1.075472
+## 17567     2355    NA 2012-10-08            0   1.075472
+## 17568     2355    NA 2012-11-30            0   1.075472
 ```
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r 13, echo=TRUE}
 
+```r
 for (i in (1:nrow(activityData4))) {
     if (is.na(activityData4$steps[i])) {
         activityData4$steps[i] <- activityData4$median_steps[i]
@@ -226,16 +351,66 @@ for (i in (1:nrow(activityData4))) {
 activityData5 <- activityData4[, c("steps","date", "interval")]
 
 head(activityData5)
-tail(activityData5)
+```
 
+```
+##   steps       date interval
+## 1     0 2012-10-01        0
+## 2     0 2012-11-23        0
+## 3     0 2012-10-28        0
+## 4     0 2012-11-06        0
+## 5     0 2012-11-24        0
+## 6     0 2012-11-15        0
+```
+
+```r
+tail(activityData5)
+```
+
+```
+##       steps       date interval
+## 17563     0 2012-10-16     2355
+## 17564     0 2012-10-07     2355
+## 17565     0 2012-10-25     2355
+## 17566     0 2012-11-03     2355
+## 17567     0 2012-10-08     2355
+## 17568     0 2012-11-30     2355
+```
+
+```r
 summary(activityData)
+```
+
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
+```r
 summary(activityData5)
+```
+
+```
+##      steps          date               interval     
+##  Min.   :  0   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0   Median :2012-10-31   Median :1177.5  
+##  Mean   : 33   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.:  8   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806   Max.   :2012-11-30   Max.   :2355.0
 ```
 
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r 14, echo=TRUE}
+
+```r
 # This exercise is similar to what we did earlier, but this time we are using
 # the data set in which we have replace the NA values with median value
 
@@ -251,20 +426,46 @@ hist(stepsPerDay$steps, main = "Total Number of Steps Per Day",
     breaks = 10, xlim = c(0, maxNumberOfSteps), ylim = c(0, 20), col = "cyan")
 ```
 
+![plot of chunk 14](figure/14-1.png)
+
 What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r 15, echo=TRUE}
+
+```r
   meanSteps1 <-  mean(stepsPerDay$steps)
   medianSteps1 <- median(stepsPerDay$steps)
   
   # Display Mean and Median Steps (calculated with activityData5)
   meanSteps1
+```
+
+```
+## [1] 9503.869
+```
+
+```r
   medianSteps1
-  
+```
+
+```
+## [1] 10395
+```
+
+```r
   # Display Mean and Median Steps (calculated with activityData2, only records without any NULLS)
   meanSteps
+```
+
+```
+## [1] 10766.19
+```
+
+```r
   medianSteps
-  
+```
+
+```
+## [1] 10765
 ```
 
     
@@ -273,7 +474,8 @@ What is the impact of imputing missing data on the estimates of the total daily 
 
 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r 16, echo=TRUE}
+
+```r
 # Logical variable - weekdays: Saturday and Sunday would be TRUE else FALSE
 activityData5$weekdays <- grepl("^[Ss]", weekdays(as.Date(activityData5$date)))
 
@@ -286,12 +488,21 @@ for (i in (1:nrow(activityData5))) {
 }
 #Check
 head(activityData5)
+```
 
+```
+##   steps       date interval weekdays week_day_factor
+## 1     0 2012-10-01        0    FALSE         weekday
+## 2     0 2012-11-23        0    FALSE         weekday
+## 3     0 2012-10-28        0     TRUE         weekend
+## 4     0 2012-11-06        0    FALSE         weekday
+## 5     0 2012-11-24        0     TRUE         weekend
+## 6     0 2012-11-15        0    FALSE         weekday
 ```
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
-```{r 17, echo=TRUE}
 
+```r
 meanStepsPerInterval  <- aggregate(activityData5$steps, 
                                    by = list(activityData5$interval, 
                                    activityData5$week_day_factor), FUN = "mean")
@@ -320,6 +531,6 @@ xyplot(data = meanStepsPerInterval,
               main = "Average Number of Steps by Time Interval", 
               xlab = "Time Interval (5-mins)", 
               ylab = "Average number of steps")
-    
+```
 
-```    
+![plot of chunk 17](figure/17-1.png)
